@@ -2,8 +2,6 @@ package frc.robot.subsystems.drive;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -127,6 +125,10 @@ public class Module {
 
     public SwerveModulePosition getSwerveModulePosition() {
         return new SwerveModulePosition(getPositionMeters(), getAngle());
+    }
+
+    public SwerveModuleState getSwerveModuleState() {
+        return new SwerveModuleState(getVelocityMetersPerSecond(), getAngle());
     }
 
     public SwerveModulePosition[] getOdometryPositions() {
