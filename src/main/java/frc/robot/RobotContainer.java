@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import frc.robot.commands.DrivetrainCommands;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -57,7 +59,14 @@ public class RobotContainer {
   }
 
   public void configureDriverController() {
-    swerveSubsystem.setDefaultCommand(getAutonomousCommand());
+    swerveSubsystem.setDefaultCommand(DrivetrainCommands.teleopDrive(
+      swerveSubsystem, 
+      () -> -DriverController.getLeftY(), 
+      () -> -DriverController.getLeftX(), 
+      () -> -DriverController.getRightX()
+    ));
+
+    DriverController.leftBumper().whileTrue(Commands.runOnce(() -> SwerveStateMachine.getInstance().toggleDriveMode()));
   }
 
   public void configureOperatorController() {}

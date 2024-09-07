@@ -28,9 +28,11 @@ public class Constants {
     public static enum RobotType { MINOBOT, SIMBOT };
     public static enum Mode { REAL, REPLAY, SIM };
     public static final double loopPeriodSecs = 0.02;
+    public static final double loopPeriodMs = loopPeriodSecs * 1000.0;
 
     private static final Alert invalidRobotAlert = new Alert("Invalid robot selected, using competition robot as default.", AlertType.ERROR);
     private static final RobotType robot = RobotType.MINOBOT;
+    public record HeadingControllerConstants(double Kp, double Kd) {}
 
     public static RobotType getRobot() {
         if (RobotBase.isReal()) {
@@ -110,6 +112,11 @@ public class Constants {
             case MINOBOT -> 250.0;
         };
 
+        public static HeadingControllerConstants headingControllerConstants =switch (Constants.getRobot()) {
+            case MINOBOT -> new HeadingControllerConstants(3.0, 0.0);
+            case SIMBOT -> new HeadingControllerConstants(3.0, 0.0);
+        };
+
         public static final Translation2d[] moduleTranslations = new Translation2d[] {
             new Translation2d(TrackWidthX / 2.0, TrackWidthY / 2.0),
             new Translation2d(TrackWidthX / 2.0, -TrackWidthY / 2.0),
@@ -117,10 +124,10 @@ public class Constants {
             new Translation2d(-TrackWidthX / 2.0, -TrackWidthY / 2.0)
         };
 
-        public static final double maxSpeedMetersPerSecond = switch (Constants.getRobot()) {
-            case SIMBOT -> 4.0;
-            case MINOBOT -> 4.1;
-        };
+        public static final double PhysicalMaxSpeedMetersPerSecond = 4.4;
+        public static final double MaxAccelerationMetersPerSecondSquared = 3;
+        public static final double MaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
+        public static final double MaxAngularSpeedRadiansPerSecondSquared = Math.PI;
     }
 
     public static final class VisionConstants {

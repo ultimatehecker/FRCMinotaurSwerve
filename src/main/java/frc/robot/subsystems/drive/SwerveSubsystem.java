@@ -155,7 +155,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public void runVelocity(ChassisSpeeds speeds) {
         ChassisSpeeds discretSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discretSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.SwerveConstants.maxSpeedMetersPerSecond);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, Constants.SwerveConstants.PhysicalMaxSpeedMetersPerSecond);
 
         SwerveModuleState[] optimizedSetpointStates = new SwerveModuleState[4];
         for(int i = 0; i < 4; i++) {
