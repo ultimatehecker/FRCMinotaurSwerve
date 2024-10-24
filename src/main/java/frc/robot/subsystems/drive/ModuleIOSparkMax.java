@@ -3,6 +3,8 @@ package frc.robot.subsystems.drive;
 import java.util.OptionalDouble;
 import java.util.Queue;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
@@ -28,6 +30,8 @@ public class ModuleIOSparkMax implements ModuleIO {
     private final Queue<Double> timestampQueue;
     private final Queue<Double> drivePositionQueue;
     private final Queue<Double> steeringPositionQueue;
+
+    private final StatusSignal<Double> swerveEncoderPosition;
 
     private final Rotation2d swerveEncoderOffset;
 
@@ -84,19 +88,24 @@ public class ModuleIOSparkMax implements ModuleIO {
             }
         });
 
+        swerveEncoderPosition = swerveEncoder.getAbsolutePosition();
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0, swerveEncoderPosition);
+
         driveMotor.burnFlash();
         steeringMotor.burnFlash();
     }
 
     @Override
     public void updateInputs(ModuleIOInputs inputs) {
+        BaseStatusSignal.refreshAll(swerveEncoderPosition);
+
         inputs.drivePositionRadians = Units.rotationsToRadians(driveEncoder.getPosition()) / Constants.SwerveConstants.ModuleGearing.getDriveReduction();
         inputs.driveVelocityRadiansPerSecond = Units.rotationsPerMinuteToRadiansPerSecond(driveEncoder.getVelocity()) / Constants.SwerveConstants.ModuleGearing.getDriveReduction();
         inputs.driveAppliedVoltage = driveMotor.getAppliedOutput() * driveMotor.getBusVoltage();
         inputs.driveCurrentAmperes = new double[] { driveMotor.getOutputCurrent() };
         inputs.driveTempuratureCelcius = new double[] { driveMotor.getMotorTemperature() };
 
-        inputs.steeringAbsolutePositionRadians = new Rotation2d(swerveEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI).minus(swerveEncoderOffset);
+        inputs.steeringAbsolutePositionRadians = new Rotation2d(swerveEncoderPosition.getValueAsDouble()).minus(swerveEncoderOffset);
         inputs.steeringPositionRadians = Rotation2d.fromRotations(steeringEncoder.getPosition() / Constants.SwerveConstants.ModuleGearing.getSteerReduction());
         inputs.steeringVelocityRadiansPerSecond = Units.rotationsPerMinuteToRadiansPerSecond(steeringEncoder.getVelocity() / Constants.SwerveConstants.ModuleGearing.getSteerReduction());
         inputs.steeringAppliedVoltage = steeringMotor.getAppliedOutput() * steeringMotor.getBusVoltage();
