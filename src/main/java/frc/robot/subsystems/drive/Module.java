@@ -57,16 +57,16 @@ public class Module {
     public void periodic() {
         Logger.processInputs("Drivetrain/Module" + Integer.toString(index), inputs);
 
-        if (steeringPositionOffset == null && inputs.steeringAbsolutePositionRadians.getRadians() != 0.0) {
-            steeringPositionOffset = inputs.steeringAbsolutePositionRadians.minus(inputs.steeringPositionRadians);
+        if (steeringPositionOffset == null && inputs.steeringAbsolutePosition.getRadians() != 0.0) {
+            steeringPositionOffset = inputs.steeringAbsolutePosition.minus(inputs.steeringPosition);
         }
 
         if(angleSetpoint != null) {
             io.setSteeringVoltage(steeringPIDController.calculate(getAngle().getRadians(), angleSetpoint.getRadians()));
 
             if(speedSetpoint != null) {
-                double adjustmentSpeedSetpoint = speedSetpoint / Math.cos(steeringPIDController.getPositionError());
-                double velocityRadiansPerSecond = adjustmentSpeedSetpoint / (Constants.SwerveConstants.WheelDiameter / 2);
+                double adjustmentSpeedSetpoint = speedSetpoint  * Math.cos(steeringPIDController.getPositionError());
+                double velocityRadiansPerSecond = adjustmentSpeedSetpoint / (Constants.SwerveConstants.drivetrainConfiguration.wheelRadius());
                 io.setDriveVoltage(driveFeedforward.calculate(velocityRadiansPerSecond) + drivePIDController.calculate(inputs.driveVelocityRadiansPerSecond, velocityRadiansPerSecond));
             }
         }
@@ -75,7 +75,7 @@ public class Module {
         odometryPositions = new SwerveModulePosition[sampleCount];
 
         for(int i = 0; i < sampleCount; i++) {
-            double positionMeters = inputs.odometryDrivePositionsRadians[i] * (Constants.SwerveConstants.WheelDiameter / 2);
+            double positionMeters = inputs.odometryDrivePositionsRadians[i] * (Constants.SwerveConstants.drivetrainConfiguration.wheelRadius());
             Rotation2d angle = inputs.odometrySteeringPositions[i].plus(steeringPositionOffset != null ? steeringPositionOffset : new Rotation2d());
             odometryPositions[i] = new SwerveModulePosition(positionMeters, angle);
         }
@@ -111,16 +111,16 @@ public class Module {
         if(steeringPositionOffset == null) {
             return new Rotation2d();
         } else {
-            return inputs.steeringPositionRadians.plus(steeringPositionOffset);
+            return inputs.steeringPosition.plus(steeringPositionOffset);
         }
     }
 
     public double getPositionMeters() {
-        return inputs.drivePositionRadians * (Constants.SwerveConstants.WheelDiameter / 2);
+        return inputs.drivePositionRadians * (Constants.SwerveConstants.drivetrainConfiguration.wheelRadius());
     }
 
     public double getVelocityMetersPerSecond() {
-        return inputs.driveVelocityRadiansPerSecond * (Constants.SwerveConstants.WheelDiameter / 2);
+        return inputs.driveVelocityRadiansPerSecond * (Constants.SwerveConstants.drivetrainConfiguration.wheelRadius());
     }
 
     public SwerveModulePosition getSwerveModulePosition() {

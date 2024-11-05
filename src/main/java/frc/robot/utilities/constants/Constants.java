@@ -1,18 +1,17 @@
 package frc.robot.utilities.constants;
 
-import com.google.flatbuffers.FlexBuffers.Map;
-
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+
 import frc.robot.utilities.Alert;
 import frc.robot.utilities.Alert.AlertType;
-import frc.robot.utilities.SwerveModuleGearing;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -61,73 +60,56 @@ public class Constants {
     // public static final Map<RobotType, String> logFolders = Map.of(RobotType.MINOBOT, "/media/sda2");
 
     public static final class ModuleConstants {
-         /* Front Left Module - Module 0 */
-        public static final class FrontLeftModule {
-            public static final int driveMotorID = 1;
-            public static final int angleMotorID = 2;
-            public static final int canCoderID = 9;
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.000);
-            public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
-        }
+        public static SwerveModuleConfiguration[] swerveModuleConfiguration = switch (Constants.getRobot()) {
+            case MINOBOT -> new SwerveModuleConfiguration[] {
+                new SwerveModuleConfiguration(1, 2, 9, Rotation2d.fromRotations(1), false, false),
+                new SwerveModuleConfiguration(3, 4, 10, Rotation2d.fromRotations(1), false, false),
+                new SwerveModuleConfiguration(5, 6, 11, Rotation2d.fromRotations(1), false, false),
+                new SwerveModuleConfiguration(7, 8, 12, Rotation2d.fromRotations(1), false, false)
+            };
+            case SIMBOT -> new SwerveModuleConfiguration[] {
+                new SwerveModuleConfiguration(0, 0, 0, new Rotation2d(0), false, false),
+                new SwerveModuleConfiguration(0, 0, 0, new Rotation2d(0), false, false),
+                new SwerveModuleConfiguration(0, 0, 0, new Rotation2d(0), false, false),
+                new SwerveModuleConfiguration(0, 0, 0, new Rotation2d(0), false, false)
+            };
+        };
 
-        /* Front Right Module - Module 1 */
-        public static final class FrontRightModule {
-            public static final int driveMotorID = 3;
-            public static final int angleMotorID = 4;
-            public static final int canCoderID = 10;
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.000);
-            public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
-        }
-
-        /* Back Left Module - Module 2 */
-        public static final class BackLeftModule {
-            public static final int driveMotorID = 5;
-            public static final int angleMotorID = 6;
-            public static final int canCoderID = 11;
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.000);
-            public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
-        }
-
-        /* Back Right Module - Module 3 */
-        public static final class BackRightModule {
-            public static final int driveMotorID = 7;
-            public static final int angleMotorID = 8;
-            public static final int canCoderID = 12;
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.000);
-            public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
-        }
+        public static final int driveSmartCurrentLimit = 40;
+        public static final int steerSmartCurrentLimit = 30;
+        public static final double moduleVoltageCompensation = 12.0;
     }
 
     public static final class SwerveConstants {
-        public static boolean tuningMode = false;
-        public static double WheelDiameter = Units.inchesToMeters(4.0);
-        public static final int gyroID = 14;
+        public static DrivetrainConfiguration drivetrainConfiguration = switch(Constants.getRobot()) {
+            default -> new DrivetrainConfiguration(
+                Units.inchesToMeters(2.0), 
+                Units.inchesToMeters(28.0), 
+                Units.inchesToMeters(28.0), 
+                Units.feetToMeters(12.16), 
+                Units.feetToMeters(12.16), 
+                Units.feetToMeters(12.16), 
+                Units.feetToMeters(12.16)
+            );
+        };
 
-        public static final double TrackWidthX = Units.inchesToMeters(27.0);
-        public static final double TrackWidthY = Units.inchesToMeters(27.0);
+        public static final Translation2d[] moduleTranslations =
+            new Translation2d[] {
+                new Translation2d(drivetrainConfiguration.trackwidthX() / 2.0, drivetrainConfiguration.trackwidthY() / 2.0),
+                new Translation2d(drivetrainConfiguration.trackwidthX() / 2.0, -drivetrainConfiguration.trackwidthY() / 2.0),
+                new Translation2d(-drivetrainConfiguration.trackwidthX() / 2.0, drivetrainConfiguration.trackwidthY() / 2.0),
+                new Translation2d(-drivetrainConfiguration.trackwidthX() / 2.0, -drivetrainConfiguration.trackwidthY() / 2.0)
+        };
 
-        public static final SwerveModuleGearing ModuleGearing = SwerveModuleGearing.MK3_FAST;
-        public static final double odometryFrequency = switch (Constants.getRobot()) {
+        public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(moduleTranslations);
+        public static final double odometryFrequency = switch(Constants.getRobot()) {
             case SIMBOT -> 50.0;
             case MINOBOT -> 250.0;
         };
+        public static final SwerveModuleGearing moduleGearing = SwerveModuleGearing.MK3_FAST;
 
-        public static HeadingControllerConstants headingControllerConstants =switch (Constants.getRobot()) {
-            case MINOBOT -> new HeadingControllerConstants(3.0, 0.0);
-            case SIMBOT -> new HeadingControllerConstants(3.0, 0.0);
-        };
-
-        public static final Translation2d[] moduleTranslations = new Translation2d[] {
-            new Translation2d(TrackWidthX / 2.0, TrackWidthY / 2.0),
-            new Translation2d(TrackWidthX / 2.0, -TrackWidthY / 2.0),
-            new Translation2d(-TrackWidthX / 2.0, TrackWidthY / 2.0),
-            new Translation2d(-TrackWidthX / 2.0, -TrackWidthY / 2.0)
-        };
-
-        public static final double PhysicalMaxSpeedMetersPerSecond = 4.4;
-        public static final double MaxAccelerationMetersPerSecondSquared = 3;
-        public static final double MaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
-        public static final double MaxAngularSpeedRadiansPerSecondSquared = Math.PI;
+        public static final boolean tuningMode = true;
+        public static final int gyroID = 13;
     }
 
     public static final class VisionConstants {
@@ -144,6 +126,101 @@ public class Constants {
         };
     }
 
+    public enum SwerveModuleGearing {
+        MK3_STANDARD(SDSModuleGearRatios.MK3_STANDARD, false, SDSModuleGearRatios.MK3_STEERING, false),
+        MK3_FAST(SDSModuleGearRatios.MK3_FAST, false, SDSModuleGearRatios.MK3_STEERING, false),
+        MK4_L1(SDSModuleGearRatios.MK4_L1, false, SDSModuleGearRatios.MK4_STEERING, false),
+        MK4_L2(SDSModuleGearRatios.MK4_L2, false, SDSModuleGearRatios.MK4_STEERING, false),
+        MK4_L3(SDSModuleGearRatios.MK4_L3, false, SDSModuleGearRatios.MK4_STEERING, false),
+        MK4_L4(SDSModuleGearRatios.MK4_L4, false, SDSModuleGearRatios.MK4_STEERING, false),
+        MK4I_L1(SDSModuleGearRatios.MK4I_L1, false, SDSModuleGearRatios.MK4I_STEERING, true),
+        MK4I_L2(SDSModuleGearRatios.MK4I_L2, false, SDSModuleGearRatios.MK4I_STEERING, true),
+        MK4I_L3(SDSModuleGearRatios.MK4I_L3, false, SDSModuleGearRatios.MK4I_STEERING, true),
+        MK4N_L1(SDSModuleGearRatios.MK4N_L1, false, SDSModuleGearRatios.MK4N_STEERING, true),
+        MK4N_L2(SDSModuleGearRatios.MK4N_L2, false, SDSModuleGearRatios.MK4N_STEERING, true),
+        MK4N_L3(SDSModuleGearRatios.MK4N_L3, false, SDSModuleGearRatios.MK4N_STEERING, true);
+    
+        private double driveReduction;
+        private boolean driveInverted;
+        private double steerReduction;
+        private boolean steerInverted;
+    
+        /**
+         * Creates a new COTS Module Gearing Configuration.
+         * @param driveReduction The overall drive reduction of the module. Multiplying motor rotations by this value should result in wheel rotations.
+         * @param driveInverted  Whether the drive motor should be inverted. If there is an odd number of gea reductions this is typically true.
+         * @param steerReduction The overall steer reduction of the module. Multiplying motor rotations by this value should result in rotations of the steering pulley.
+         * @param steerInverted  Whether the steer motor should be inverted. If there is an odd number of gear reductions this is typically true.
+         */
+    
+        SwerveModuleGearing(double driveReduction, boolean driveInverted, double steerReduction, boolean steerInverted) {
+            this.driveReduction = driveReduction;
+            this.driveInverted = driveInverted;
+            this.steerReduction = steerReduction;
+            this.steerInverted = steerInverted;
+        }
+    
+        /**
+         * Gets the overall reduction of the drive system. If this value is multiplied by drive motor rotations the result would be drive wheel rotations.
+         */
+    
+        public double getDriveReduction() {
+            return driveReduction;
+        }
+    
+        /**
+         * Gets if the drive motor should be inverted.
+         */
+    
+        public boolean isDriveInverted() {
+            return driveInverted;
+        }
+    
+        /**
+         * Gets the overall reduction of the steer system. If this value is multiplied by steering motor rotations the result would be steering pulley rotations.
+         */
+    
+        public double getSteerReduction() {
+            return steerReduction;
+        }
+    
+        /**
+         * Gets if the steering motor should be inverted.
+         */
+    
+        public boolean isSteerInverted() {
+            return steerInverted;
+        }
+    
+        /**
+         * Swerve Module Gearing.
+         * A collection of every single gear ratio for every COTS swerve module.
+         */
+    
+         private class SDSModuleGearRatios {
+            public static final double MK3_STANDARD = (50.0 / 14.0) * (16.0 / 28.0) * (60.0 / 15.0);
+            public static final double MK3_FAST = (48.0 / 16.0) * (16.0 / 28.0) * (60.0 / 15.0);
+    
+            public static final double MK4_L1 = (50.0 / 14.0) * (19.0 / 25.0) * (45.0 / 15.0);
+            public static final double MK4_L2 = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
+            public static final double MK4_L3 = (50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0);
+            public static final double MK4_L4 = (48.0 / 16.0) * (16.0 / 28.0) * (45.0 / 15.0);
+    
+            public static final double MK4I_L1 = (50.0 / 14.0) * (19.0 / 25.0) * (45.0 / 15.0);
+            public static final double MK4I_L2 = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
+            public static final double MK4I_L3 = (50.0 / 14.0) * (16.0 / 28.0) * (45.0 / 15.0);
+    
+            public static final double MK4N_L1 = (50.0 / 16.0) * (19.0 / 25.0) * (45.0 / 15.0);
+            public static final double MK4N_L2 = (50.0 / 16.0) * (17.0 / 27.0) * (45.0 / 15.0);
+            public static final double MK4N_L3 = (50.0 / 16.0) * (16.0 / 28.0) * (45.0 / 15.0);
+    
+            public static final double MK3_STEERING = (32.0 / 15.0) * (60.0 / 10.0);
+            public static final double MK4_STEERING = (32.0 / 15.0) * (60.0 / 10.0);
+            public static final double MK4I_STEERING = (50.0 / 14.0) * (60.0 / 10.0);
+            public static final double MK4N_STEERING = 18.75;
+        }
+    }
+
     public final class BuildConstants {
         public static final String MAVEN_GROUP = "";
         public static final String MAVEN_NAME = "B-Swerve-Copy";
@@ -157,5 +234,38 @@ public class Constants {
         public static final int DIRTY = 129;
       
         private BuildConstants(){}
+    }
+
+    public record SwerveModuleConfiguration(
+        int driveMotorID, 
+        int steeringMotorID, 
+        int swerveEnocderID, 
+        Rotation2d angleOffset, 
+        boolean isSteerInverted,
+        boolean isDriveInverted
+    ) {
+        
+    }
+
+    public record DrivetrainConfiguration(
+        double wheelRadius, 
+        double trackWidthX, 
+        double trackWidthY, 
+        double maxLinearVelocity, 
+        double maxLinearAcceleration,
+        double maxAngularVelocity,
+        double maxAngularAcceleration
+    ) {
+        public double driveBaseRadius() {
+            return Math.hypot(trackWidthX / 2.0, trackWidthY / 2.0);
+        }
+
+        public double trackwidthX() {
+            return trackWidthX;
+        }
+
+        public double trackwidthY() {
+            return trackWidthY;
+        }
     }
 }

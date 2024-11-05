@@ -5,12 +5,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.utilities.SwerveModuleGearing;
+import frc.robot.utilities.constants.Constants.SwerveModuleGearing;
 import frc.robot.utilities.constants.Constants;
 
 public class ModuleIOSim implements ModuleIO {
     private static final double LOOP_PERIOD_SECONDS = 0.02;
-    private static final SwerveModuleGearing ModuleGearing = Constants.SwerveConstants.ModuleGearing;
+    private static final SwerveModuleGearing ModuleGearing = Constants.SwerveConstants.moduleGearing;
 
     private DCMotorSim driveMotor = new DCMotorSim(DCMotor.getNEO(1), ModuleGearing.getDriveReduction(), 0.025);
     private DCMotorSim steeringMotor = new DCMotorSim(DCMotor.getNEO(1), ModuleGearing.getSteerReduction(), 0.004);
@@ -29,15 +29,15 @@ public class ModuleIOSim implements ModuleIO {
         inputs.driveAppliedVoltage = driveAppliedVoltage;
         inputs.driveCurrentAmperes = new double [] { Math.abs(driveMotor.getCurrentDrawAmps()) };
 
-        inputs.steeringAbsolutePositionRadians = new Rotation2d(steeringMotor.getAngularPositionRad()).plus(steeringAbsolutePosition);
-        inputs.steeringPositionRadians = new Rotation2d(steeringMotor.getAngularPositionRad());
+        inputs.steeringAbsolutePosition = new Rotation2d(steeringMotor.getAngularPositionRad()).plus(steeringAbsolutePosition);
+        inputs.steeringPosition = new Rotation2d(steeringMotor.getAngularPositionRad());
         inputs.steeringVelocityRadiansPerSecond = steeringMotor.getAngularVelocityRadPerSec();
         inputs.steeringAppliedVoltage = steeringAppliedVoltage;
         inputs.steeringCurrentAmperes = new double [] { Math.abs(steeringMotor.getCurrentDrawAmps()) };
 
         inputs.odometryTimestamps = new double[] { Timer.getFPGATimestamp() };
         inputs.odometryDrivePositionsRadians = new double[] { inputs.drivePositionRadians };
-        inputs.odometrySteeringPositions = new Rotation2d[] { inputs.steeringPositionRadians };
+        inputs.odometrySteeringPositions = new Rotation2d[] { inputs.steeringPosition };
     }
 
     @Override

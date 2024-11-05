@@ -13,8 +13,8 @@ public interface ModuleIO {
         public double[] driveCurrentAmperes = new double[] {};
         public double[] driveTempuratureCelcius = new double[] {};
 
-        public Rotation2d steeringAbsolutePositionRadians = new Rotation2d();
-        public Rotation2d steeringPositionRadians = new Rotation2d();
+        public Rotation2d steeringAbsolutePosition = new Rotation2d();
+        public Rotation2d steeringPosition = new Rotation2d();
         public double steeringVelocityRadiansPerSecond = 0.0;
         public double steeringAppliedVoltage = 0.0;
         public double[] steeringCurrentAmperes = new double[] {};

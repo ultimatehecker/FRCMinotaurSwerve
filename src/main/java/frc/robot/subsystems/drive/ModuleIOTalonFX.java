@@ -15,8 +15,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+
 import frc.robot.utilities.constants.Constants;
-import frc.robot.utilities.constants.SwerveModuleConstants;
+import frc.robot.utilities.constants.Constants.SwerveModuleConfiguration;
 
 public class ModuleIOTalonFX implements ModuleIO {
     private final TalonFX driveMotor;
@@ -40,11 +41,11 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     private final Rotation2d swerveEncoderOffset;
 
-    public ModuleIOTalonFX(SwerveModuleConstants constants) {
-        driveMotor = new TalonFX(constants.driveMotorID);
-        steeringMotor = new TalonFX(constants.steeringMotorID);
-        swerveEncoder = new CANcoder(constants.swerveEnocderID);
-        swerveEncoderOffset = constants.angleOffset;
+    public ModuleIOTalonFX(SwerveModuleConfiguration moduleConfiguration) {
+        driveMotor = new TalonFX(moduleConfiguration.driveMotorID());
+        steeringMotor = new TalonFX(moduleConfiguration.steeringMotorID());
+        swerveEncoder = new CANcoder(moduleConfiguration.swerveEnocderID());
+        swerveEncoderOffset = moduleConfiguration.angleOffset();
 
         var driveMotorConfiguration = new TalonFXConfiguration();
         driveMotorConfiguration.CurrentLimits.SupplyCurrentLimit = 40.0;
@@ -86,20 +87,20 @@ public class ModuleIOTalonFX implements ModuleIO {
     public void updateInputs(ModuleIOInputs inputs) {
         BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVoltage, driveCurrent, swerveEncoderPosition, steeringPosition, steeringVelocity, steeringAppliedVoltage, steeringCurrent);
 
-        inputs.drivePositionRadians = Units.rotationsToRadians(drivePosition.getValueAsDouble()) / Constants.SwerveConstants.ModuleGearing.getDriveReduction();
-        inputs.driveVelocityRadiansPerSecond = Units.rotationsPerMinuteToRadiansPerSecond(driveVelocity.getValueAsDouble()) / Constants.SwerveConstants.ModuleGearing.getDriveReduction();
+        inputs.drivePositionRadians = Units.rotationsToRadians(drivePosition.getValueAsDouble()) / Constants.SwerveConstants.moduleGearing.getDriveReduction();
+        inputs.driveVelocityRadiansPerSecond = Units.rotationsPerMinuteToRadiansPerSecond(driveVelocity.getValueAsDouble()) / Constants.SwerveConstants.moduleGearing.getDriveReduction();
         inputs.driveAppliedVoltage = driveAppliedVoltage.getValueAsDouble();
         inputs.driveCurrentAmperes = new double[] { driveCurrent.getValueAsDouble() };
 
-        inputs.steeringAbsolutePositionRadians = Rotation2d.fromRotations(swerveEncoderPosition.getValueAsDouble()).minus(swerveEncoderOffset);
-        inputs.steeringPositionRadians = Rotation2d.fromRotations(steeringPosition.getValueAsDouble() / Constants.SwerveConstants.ModuleGearing.getSteerReduction());
-        inputs.steeringVelocityRadiansPerSecond = Units.rotationsPerMinuteToRadiansPerSecond(steeringVelocity.getValueAsDouble() / Constants.SwerveConstants.ModuleGearing.getSteerReduction());
+        inputs.steeringAbsolutePosition = Rotation2d.fromRotations(swerveEncoderPosition.getValueAsDouble()).minus(swerveEncoderOffset);
+        inputs.steeringPosition = Rotation2d.fromRotations(steeringPosition.getValueAsDouble() / Constants.SwerveConstants.moduleGearing.getSteerReduction());
+        inputs.steeringVelocityRadiansPerSecond = Units.rotationsPerMinuteToRadiansPerSecond(steeringVelocity.getValueAsDouble() / Constants.SwerveConstants.moduleGearing.getSteerReduction());
         inputs.steeringAppliedVoltage = steeringAppliedVoltage.getValueAsDouble();
         inputs.steeringCurrentAmperes = new double[] { steeringCurrent.getValueAsDouble() };
 
         inputs.odometryTimestamps = timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-        inputs.odometryDrivePositionsRadians = drivePositionQueue.stream().mapToDouble((Double value) -> Units.rotationsToRadians(value) / Constants.SwerveConstants.ModuleGearing.getDriveReduction()).toArray();
-        inputs.odometrySteeringPositions = steeringPositionQueue.stream().map((Double value) -> Rotation2d.fromRotations(value / Constants.SwerveConstants.ModuleGearing.getSteerReduction())).toArray(Rotation2d[]::new);
+        inputs.odometryDrivePositionsRadians = drivePositionQueue.stream().mapToDouble((Double value) -> Units.rotationsToRadians(value) / Constants.SwerveConstants.moduleGearing.getDriveReduction()).toArray();
+        inputs.odometrySteeringPositions = steeringPositionQueue.stream().map((Double value) -> Rotation2d.fromRotations(value / Constants.SwerveConstants.moduleGearing.getSteerReduction())).toArray(Rotation2d[]::new);
 
         timestampQueue.clear();
         drivePositionQueue.clear();
