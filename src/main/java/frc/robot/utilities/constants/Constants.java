@@ -1,5 +1,7 @@
 package frc.robot.utilities.constants;
 
+import com.pathplanner.lib.util.PIDConstants;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -129,6 +131,16 @@ public class Constants {
                 new Translation2d(drivetrainConfiguration.trackwidthX() / 2.0, -drivetrainConfiguration.trackwidthY() / 2.0),
                 new Translation2d(-drivetrainConfiguration.trackwidthX() / 2.0, drivetrainConfiguration.trackwidthY() / 2.0),
                 new Translation2d(-drivetrainConfiguration.trackwidthX() / 2.0, -drivetrainConfiguration.trackwidthY() / 2.0)
+        };
+
+        public static final PIDConstants PPtranslationConstants = switch (Constants.getRobot()) {
+            case MINOBOT -> new PIDConstants(10, 0.0, 0.0);
+            case SIMBOT -> new PIDConstants(10, 0.0, 0.0);
+        };
+
+        public static final PIDConstants PProtationConstants = switch (Constants.getRobot()) {
+            case MINOBOT -> new PIDConstants(10, 0.0, 0.0);
+            case SIMBOT -> new PIDConstants(10, 0.0, 0.0);
         };
 
         public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(moduleTranslations);

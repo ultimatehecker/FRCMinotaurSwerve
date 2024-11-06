@@ -13,10 +13,13 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.utilities.constants.Constants.SwerveConstants.PProtationConstants;
+import static frc.robot.utilities.constants.Constants.SwerveConstants.PPtranslationConstants;
 
 import frc.robot.utilities.VisionHelpers.TimestampedVisionUpdate;
 import frc.robot.utilities.constants.Constants;
@@ -25,6 +28,9 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -73,13 +79,19 @@ public class SwerveSubsystem extends SubsystemBase {
         SparkMaxOdometryThread.getInstance().start();
 
         AutoBuilder.configureHolonomic(
-            null, 
-            null, 
-            () -> kinematics.toChassisSpeeds(), 
-            null, 
-            null, 
-            null, 
-            null
+            this::getPose, 
+            this::setAutoStartPose, 
+            () -> kinematics.toChassisSpeeds(getSwerveModuleStates()), 
+            this::runVelocity, 
+            new HolonomicPathFollowerConfig(
+                new PIDConstants(PPtranslationConstants.kP, PPtranslationConstants.kI, PPtranslationConstants.kD),
+                new PIDConstants(PProtationConstants.kP, PProtationConstants.kI, PProtationConstants.kD),
+                Constants.SwerveConstants.drivetrainConfiguration.maxLinearVelocity(),
+                Constants.SwerveConstants.drivetrainConfiguration.driveBaseRadius(),
+                new ReplanningConfig()
+            ), 
+            () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red, 
+            this
         );
 
         sysID =new SysIdRoutine(
