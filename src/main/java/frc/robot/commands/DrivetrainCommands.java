@@ -26,10 +26,10 @@ public class DrivetrainCommands {
 
     public static final Command teleopDrive(SwerveSubsystem swerveSubsystem, DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier thetaSupplier) {
         ProfiledPIDController headingController = new ProfiledPIDController(
-            Constants.SwerveConstants.headingControllerConstants.Kp(),
+            Constants.SwerveConstants.headingControllerParameters.Kp(),
             0,
-            Constants.SwerveConstants.headingControllerConstants.Kd(),
-            new TrapezoidProfile.Constraints(Constants.SwerveConstants.MaxAngularSpeedRadiansPerSecond, Constants.SwerveConstants.MaxAngularSpeedRadiansPerSecondSquared),
+            Constants.SwerveConstants.headingControllerParameters.Kd(),
+            new TrapezoidProfile.Constraints(Constants.SwerveConstants.drivetrainConfiguration.maxAngularVelocity(), Constants.SwerveConstants.drivetrainConfiguration.maxAngularAcceleration()),
             Constants.loopPeriodMs
         );
 
@@ -55,8 +55,8 @@ public class DrivetrainCommands {
             Rotation2d measuredGyroAngle = swerveSubsystem.getRotation();
             double feedForwardRadialVelocity = 0.0;
 
-            double robotRelativeXVelocity = linearVelocity.getX() * Constants.SwerveConstants.PhysicalMaxSpeedMetersPerSecond;
-            double robotRelativeYVelocity = linearVelocity.getY() * Constants.SwerveConstants.PhysicalMaxSpeedMetersPerSecond;
+            double robotRelativeXVelocity = linearVelocity.getX() * Constants.SwerveConstants.drivetrainConfiguration.maxLinearVelocity();
+            double robotRelativeYVelocity = linearVelocity.getY() * Constants.SwerveConstants.drivetrainConfiguration.maxLinearVelocity();
 
             if(SwerveStateMachine.getInstance().isHeadingControlled()) {
                 measuredGyroAngle = swerveSubsystem.getPose().getRotation();
@@ -67,7 +67,7 @@ public class DrivetrainCommands {
             ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 robotRelativeXVelocity, 
                 robotRelativeYVelocity,
-                SwerveStateMachine.getInstance().isHeadingControlled() && targetGyroAngle.isPresent() ? feedForwardRadialVelocity + headingController.calculate(measuredGyroAngle.getRadians(), targetGyroAngle.get().getRadians()) : omega * Constants.SwerveConstants.MaxAngularSpeedRadiansPerSecondSquared,
+                SwerveStateMachine.getInstance().isHeadingControlled() && targetGyroAngle.isPresent() ? feedForwardRadialVelocity + headingController.calculate(measuredGyroAngle.getRadians(), targetGyroAngle.get().getRadians()) : omega * Constants.SwerveConstants.drivetrainConfiguration.maxAngularVelocity(),
                 isFlipped ? swerveSubsystem.getRotation().plus(new Rotation2d(Math.PI)) : swerveSubsystem.getRotation()
             );
 

@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 import frc.robot.utilities.Alert;
 import frc.robot.utilities.Alert.AlertType;
+import frc.robot.utilities.constants.Constants.SwerveModuleConfiguration;
+import frc.robot.utilities.constants.Constants.SwerveModuleParameters;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -75,6 +77,29 @@ public class Constants {
             };
         };
 
+        public static SwerveModuleParameters swerveModuleParameters = switch(Constants.getRobot()) {
+            case MINOBOT -> new SwerveModuleParameters(
+                0.1,
+                0.13,
+                0.1,
+                0.0,
+                10.0,
+                0.0,
+                SwerveModuleGearing.MK3_FAST.driveReduction,
+                SwerveModuleGearing.MK3_FAST.steerReduction
+            );
+            case SIMBOT -> new SwerveModuleParameters(
+                0.014,
+                0.134,
+                0.1,
+                0.0,
+                10.0,
+                0.0, 
+                SwerveModuleGearing.MK3_FAST.driveReduction,
+                SwerveModuleGearing.MK3_FAST.steerReduction
+            );
+        };
+
         public static final int driveSmartCurrentLimit = 40;
         public static final int steerSmartCurrentLimit = 30;
         public static final double moduleVoltageCompensation = 12.0;
@@ -91,6 +116,11 @@ public class Constants {
                 Units.feetToMeters(12.16), 
                 Units.feetToMeters(12.16)
             );
+        };
+
+        public static HeadingControllerParameters headingControllerParameters = switch(Constants.getRobot()) {
+            case MINOBOT -> new HeadingControllerParameters(3.0, 0.0);
+            case SIMBOT -> new HeadingControllerParameters(3.0, 0.0);
         };
 
         public static final Translation2d[] moduleTranslations =
@@ -243,9 +273,17 @@ public class Constants {
         Rotation2d angleOffset, 
         boolean isSteerInverted,
         boolean isDriveInverted
-    ) {
-        
-    }
+    ) {}
+
+    public record SwerveModuleParameters(
+      double ffKs,
+      double ffKv,
+      double driveKp,
+      double drivekD,
+      double turnKp,
+      double turnkD,
+      double driveReduction,
+      double turnReduction) {}
 
     public record DrivetrainConfiguration(
         double wheelRadius, 
@@ -268,4 +306,9 @@ public class Constants {
             return trackWidthY;
         }
     }
+
+    public record HeadingControllerParameters(
+        double Kp, 
+        double Kd
+    ) {}
 }

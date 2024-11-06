@@ -22,6 +22,7 @@ import frc.robot.subsystems.drive.ModuleIOSparkMax;
 import frc.robot.subsystems.drive.SwerveStateMachine;
 import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.utilities.constants.Constants;
+import frc.robot.utilities.constants.Constants.ModuleConstants;
 import frc.robot.utilities.constants.Constants.ModuleConstants.*;
 
 public class RobotContainer {
@@ -36,7 +37,7 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.getMode()) {
       case REAL:
-        swerveSubsystem = new SwerveSubsystem(new GyroIONavX(), new ModuleIOSparkMax(FrontLeftModule.constants), new ModuleIOSparkMax(FrontRightModule.constants), new ModuleIOSparkMax(BackLeftModule.constants), new ModuleIOSparkMax(BackRightModule.constants));
+        swerveSubsystem = new SwerveSubsystem(new GyroIONavX(), new ModuleIOSparkMax(ModuleConstants.swerveModuleConfiguration[0]), new ModuleIOSparkMax(ModuleConstants.swerveModuleConfiguration[1]), new ModuleIOSparkMax(ModuleConstants.swerveModuleConfiguration[2]), new ModuleIOSparkMax(ModuleConstants.swerveModuleConfiguration[3]));
         break;
 
       case SIM:
