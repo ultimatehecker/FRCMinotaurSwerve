@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -53,6 +54,8 @@ public class RobotContainer {
     autonomousChooser.addOption("Drivetrain SysID (Quasistatic Reverse)", swerveSubsystem.sysIDQuasistatic(SysIdRoutine.Direction.kReverse));
     autonomousChooser.addOption("Drivetrain SysID (Dynamic Forward)", swerveSubsystem.sysIDDynamic(SysIdRoutine.Direction.kForward));
     autonomousChooser.addOption("Drivetrain SysID (Dynamic Reverse)", swerveSubsystem.sysIDDynamic(SysIdRoutine.Direction.kReverse));
+
+    RobotController.setBrownoutVoltage(6.8);
 
     SwerveStateMachine.getInstance().disableHeadingControl();
     configureDriverController();
